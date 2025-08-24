@@ -490,6 +490,7 @@ body {
 }
 
 .item-content {
+  flex-grow: 1; /* Allows the content to fill the available space */
   display: flex;
   align-items: center;
   gap: 12px;
@@ -673,9 +674,14 @@ body {
   }
   
   .module-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border: 1px solid #eaeaea;
+  border-radius: 6px;
+  padding: 12px 16px;
+  transition: background-color 0.15s ease;
   }
   
   .item-content {
@@ -712,3 +718,15 @@ body {
   height: 20px;
 }
 
+.drag-handle {
+  padding-right: 8px; /* Space between handle and content */
+  cursor: grab;
+  display: flex; /* Ensures the icon is centered if needed */
+  align-items: center;
+}
+
+.drag-icon {
+  width: 20px; /* Adjust size as needed */
+  height: 20px;
+  opacity: 0.6; /* Make it less prominent */
+}

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import ModuleItem from './ModuleItem';
 import DeleteIcon from '../../assets/DeleteOutlined.svg';
+import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const ModuleCard = ({ module, onEdit, onDelete, items = [], onAddItem, onDeleteItem, active, highlight }) => {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
@@ -8,6 +10,21 @@ const ModuleCard = ({ module, onEdit, onDelete, items = [], onAddItem, onDeleteI
   const [isAddMenuOpen, setIsAddMenu] = useState(false);
 
   const moduleItems = items.filter(item => item.moduleId === module.id);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: `module-${module.id}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   const toggleOptions = e => {
     e.stopPropagation();
@@ -39,9 +56,13 @@ const ModuleCard = ({ module, onEdit, onDelete, items = [], onAddItem, onDeleteI
   };
 
   return (
-    <div className={`module-card-container ${active ? 'module-content-expanded' : ''}`}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`module-card-container ${active ? 'module-content-expanded' : ''}`}
+    >
       <div className="module-card" onClick={toggleExpanded}>
-        <div className="module-content">
+        <div className="module-content" {...listeners} {...attributes}>
           <div className={`icon ${isExpanded ? 'expanded' : ''}`}>▶</div>
           <div className="module-info">
             <h3 className={`module-title ${highlight ? 'bg-yellow-200' : ''}`}>{module.name}</h3>
@@ -63,7 +84,7 @@ const ModuleCard = ({ module, onEdit, onDelete, items = [], onAddItem, onDeleteI
               </button>
               <button className="option-item delete" onClick={handleDelete}>
                 <img src={DeleteIcon} alt="Delete" />
-                    Delete
+                      Delete
               </button>
             </div>
           )}
@@ -93,11 +114,16 @@ const ModuleCard = ({ module, onEdit, onDelete, items = [], onAddItem, onDeleteI
             </div>
           ) : (
             <>
-              <div className="module-items-list">
-                {moduleItems.map(item => (
-                  <ModuleItem key={item.id} item={item} onDelete={onDeleteItem} />
-                ))}
-              </div>
+              <SortableContext
+                items={moduleItems.map(item => item.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="module-items-list">
+                  {moduleItems.map(item => (
+                    <ModuleItem key={item.id} item={item} onDelete={onDeleteItem} />
+                  ))}
+                </div>
+              </SortableContext>
               <div className="add-item-container">
                 <button className="add-item-button" onClick={toggleAddMenu}>
                   <span>+</span> Add item
