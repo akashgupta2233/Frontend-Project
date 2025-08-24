@@ -6,6 +6,7 @@ const LinkModal = ({ isOpen, onClose, onSave, moduleId }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (!linkTitle.trim() || !linkUrl.trim()) return;
 
     onSave({
       id: Date.now().toString(),
@@ -29,31 +30,29 @@ const LinkModal = ({ isOpen, onClose, onSave, moduleId }) => {
             ×
           </button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <div className="form-group">
-              <label htmlFor="link-title">Link title</label>
-              <input
-                id="link-title"
-                type="text"
-                value={linkTitle}
-                onChange={e => setLinkTitle(e.target.value)}
-                placeholder="Link title"
-                className="form-input"
-                autoFocus
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="link-url">URL</label>
-              <input
-                id="link-url"
-                type="text"
-                value={linkUrl}
-                onChange={e => setLinkUrl(e.target.value)}
-                placeholder="https://example.com"
-                className="form-input"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="modal-body">
+          <div className="form-group">
+            <label htmlFor="link-title">Link title</label>
+            <input
+              id="link-title"
+              type="text"
+              value={linkTitle}
+              onChange={e => setLinkTitle(e.target.value)}
+              placeholder="Link title"
+              className="form-input"
+              autoFocus
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="link-url">URL</label>
+            <input
+              id="link-url"
+              type="text"
+              value={linkUrl}
+              onChange={e => setLinkUrl(e.target.value)}
+              placeholder="https://example.com"
+              className="form-input"
+            />
           </div>
           <div className="modal-footer">
             <button type="button" className="btn-cancel" onClick={onClose}>

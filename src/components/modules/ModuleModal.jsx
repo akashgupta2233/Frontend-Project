@@ -5,6 +5,7 @@ const ModuleModal = ({ isOpen, onClose, onSave, module = null }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (!moduleName.trim()) return;
 
     onSave({
       id: module ? module.id : Date.now().toString(),
@@ -20,30 +21,30 @@ const ModuleModal = ({ isOpen, onClose, onSave, module = null }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h2>{module ? 'Edit module' : 'Create new module'}</h2>
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <div className="form-group">
-              <label htmlFor="module-name">Module name</label>
-              <input
-                id="module-name"
-                type="text"
-                value={moduleName}
-                onChange={e => setModuleName(e.target.value)}
-                placeholder="Introduction to Trigonometry"
-                className="form-input"
-                autoFocus
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="modal-body">
+          <div className="form-group">
+            <label htmlFor="module-name">Module name</label>
+            <input
+              id="module-name"
+              type="text"
+              value={moduleName}
+              onChange={e => setModuleName(e.target.value)}
+              placeholder="Introduction to Trigonometry"
+              className="form-input"
+              autoFocus
+            />
           </div>
           <div className="modal-footer">
             <button type="button" className="btn-cancel" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn-create">
+            <button
+              type="submit"
+              className="btn-create"
+              disabled={!moduleName.trim()}
+            >
               {module ? 'Save changes' : 'Create'}
             </button>
           </div>

@@ -1,18 +1,11 @@
 import { useState } from 'react';
-
 import ModuleItem from './ModuleItem';
+import DeleteIcon from '../../assets/DeleteOutlined.svg';
 
-const ModuleCard = ({
-  module,
-  onEdit,
-  onDelete,
-  items = [],
-  onAddItem,
-  onDeleteItem,
-}) => {
+const ModuleCard = ({ module, onEdit, onDelete, items = [], onAddItem, onDeleteItem, active, highlight }) => {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const [isAddMenuOpen, setIsAddMenu] = useState(false);
 
   const moduleItems = items.filter(item => item.moduleId === module.id);
 
@@ -37,23 +30,21 @@ const ModuleCard = ({
 
   const toggleAddMenu = e => {
     e.stopPropagation();
-    setIsAddMenuOpen(!isAddMenuOpen);
+    setIsAddMenu(!isAddMenuOpen);
   };
 
   const handleAddClick = type => {
     onAddItem(module.id, type);
-    setIsAddMenuOpen(false);
+    setIsAddMenu(false);
   };
 
   return (
-    <div className="module-card-container">
+    <div className={`module-card-container ${active ? 'module-content-expanded' : ''}`}>
       <div className="module-card" onClick={toggleExpanded}>
         <div className="module-content">
-          <div className="module-icon">
-            <span className={`icon ${isExpanded ? 'expanded' : ''}`}>▼</span>
-          </div>
+          <div className={`icon ${isExpanded ? 'expanded' : ''}`}>▶</div>
           <div className="module-info">
-            <h3 className="module-title">{module.name}</h3>
+            <h3 className={`module-title ${highlight ? 'bg-yellow-200' : ''}`}>{module.name}</h3>
             <p className="module-subtitle">
               {moduleItems.length === 0
                 ? 'Add items to this module'
@@ -63,88 +54,66 @@ const ModuleCard = ({
         </div>
         <div className="module-actions">
           <button className="btn-options" onClick={toggleOptions}>
-            <span className="options-icon">⋮</span>
+            ⋮
           </button>
           {isOptionsOpen && (
             <div className="options-menu">
               <button className="option-item" onClick={handleEdit}>
-                <span className="option-icon">✏️</span>
-                Edit module name
+                <span>✏️</span> Edit module name
               </button>
               <button className="option-item delete" onClick={handleDelete}>
-                <span className="option-icon">🗑️</span>
-                Delete
+                <img src={DeleteIcon} alt="Delete" />
+                    Delete
               </button>
             </div>
           )}
         </div>
       </div>
+
       {isExpanded && (
         <div className="module-content-expanded">
           {moduleItems.length === 0 ? (
             <div className="empty-module-content">
-              <p className="empty-module-message">
-                No content added to this module yet.
-              </p>
+              <p>No content added to this module yet.</p>
               <div className="add-item-container">
                 <button className="add-item-button" onClick={toggleAddMenu}>
-                  <span className="add-icon">+</span> Add item
+                  <span>+</span> Add item
                 </button>
                 {isAddMenuOpen && (
                   <div className="add-item-menu">
-                    <button
-                      className="add-item-option"
-                      onClick={() => handleAddClick('link')}
-                    >
-                      <span className="item-icon">🔗</span>
-                      Add a link
+                    <button className="add-item-option" onClick={() => handleAddClick('link')}>
+                      <span>🔗</span> Add a link
                     </button>
-                    <button
-                      className="add-item-option"
-                      onClick={() => handleAddClick('file')}
-                    >
-                      <span className="item-icon">⬆️</span>
-                      Upload file
+                    <button className="add-item-option" onClick={() => handleAddClick('file')}>
+                      <span>⬆️</span> Upload file
                     </button>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="module-items">
+            <>
               <div className="module-items-list">
                 {moduleItems.map(item => (
-                  <ModuleItem
-                    key={item.id}
-                    item={item}
-                    onDelete={onDeleteItem}
-                  />
+                  <ModuleItem key={item.id} item={item} onDelete={onDeleteItem} />
                 ))}
               </div>
               <div className="add-item-container">
                 <button className="add-item-button" onClick={toggleAddMenu}>
-                  <span className="add-icon">+</span> Add item
+                  <span>+</span> Add item
                 </button>
                 {isAddMenuOpen && (
                   <div className="add-item-menu">
-                    <button
-                      className="add-item-option"
-                      onClick={() => handleAddClick('link')}
-                    >
-                      <span className="item-icon">🔗</span>
-                      Add a link
+                    <button className="add-item-option" onClick={() => handleAddClick('link')}>
+                      <span>🔗</span> Add a link
                     </button>
-                    <button
-                      className="add-item-option"
-                      onClick={() => handleAddClick('file')}
-                    >
-                      <span className="item-icon">⬆️</span>
-                      Upload file
+                    <button className="add-item-option" onClick={() => handleAddClick('file')}>
+                      <span>⬆️</span> Upload file
                     </button>
                   </div>
                 )}
               </div>
-            </div>
+            </>
           )}
         </div>
       )}

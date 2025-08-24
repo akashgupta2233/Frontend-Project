@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
+import SinglePointRubricSVG from '../../assets/SinglePointRubric.svg';
+import UploadOutlinedSVG from '../../assets/UploadOutlined.svg';
+import LinkOutlinedSVG from '../../assets/LinkOutlined.svg';
+import SearchOutlinedSVG from '../../assets/SearchOutlined.svg';
 
-const Header = ({ onAddClick }) => {
+const Header = ({ onAddClick, onSearchChange }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -28,10 +32,12 @@ const Header = ({ onAddClick }) => {
   };
 
   const handleAddLink = () => {
+    onAddClick('link');
     setIsDropdownOpen(false);
   };
 
   const handleUpload = () => {
+    onAddClick('upload');
     setIsDropdownOpen(false);
   };
 
@@ -40,25 +46,41 @@ const Header = ({ onAddClick }) => {
       <h1 className="header-title">Course builder</h1>
       <div className="header-right">
         <div className="search-container">
-          <input type="text" placeholder="Search..." className="search-input" />
+          <input
+            type="text"
+            placeholder="Search..."
+            className="search-input"
+            onChange={e => onSearchChange(e.target.value)}
+          />
+          <img src={SearchOutlinedSVG} alt="Search" className="search-icon" />
         </div>
         <div className="dropdown-container" ref={dropdownRef}>
           <button className="add-button" onClick={handleAddClick}>
-            Add
+            <span className="add-icon">+</span> Add
+            <span className="dropdown-arrow">▾</span>
           </button>
           {isDropdownOpen && (
             <div className="dropdown-menu">
               <button className="dropdown-item" onClick={handleCreateModule}>
-                <span className="item-icon">📄</span>
-                Create module
+                <span className="item-icon">
+                    <img src={SinglePointRubricSVG} alt="Single Point Rubric" className="w-5 h-5" />
+                </span>
+
+                <span>Create module</span>
               </button>
               <button className="dropdown-item" onClick={handleAddLink}>
-                <span className="item-icon">🔗</span>
-                Add a link
+                <span className="item-icon">
+                      <img src={LinkOutlinedSVG} alt="Link" className="w-5 h-5" />
+                </span>
+
+                <span>Add a link</span>
               </button>
               <button className="dropdown-item" onClick={handleUpload}>
-                <span className="item-icon">⬆️</span>
-                Upload
+                <span className="item-icon">
+                      <img src={UploadOutlinedSVG} alt="Upload" className="w-5 h-5" />
+                </span>
+
+                <span>Upload file</span>
               </button>
             </div>
           )}

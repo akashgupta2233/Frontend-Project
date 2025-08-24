@@ -1,9 +1,11 @@
+import ResourcesSVG from '../../assets/Resources.svg';
+
 const EmptyState = () => {
   return (
     <div className="empty-state">
       <div className="empty-state-illustration">
         <img
-          src="/##.svg"
+          src={ResourcesSVG}
           alt="Empty illustration"
           className="empty-state-image"
         />

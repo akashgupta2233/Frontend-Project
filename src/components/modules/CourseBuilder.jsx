@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 
 import EmptyState from '../ui/EmptyState';
 import Header from '../ui/Header';
@@ -7,149 +7,227 @@ import LinkModal from './LinkModal';
 import ModuleCard from './ModuleCard';
 import ModuleModal from './ModuleModal';
 import UploadModal from './UploadModal';
+import ModuleItem from './ModuleItem';
 
 const CourseBuilder = () => {
-  const [modules, setModules] = useState([]);
-  const [items, setItems] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [items, setItems] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Modal states
-  const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
-  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  // Modal states
+  const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
-  // Current items for editing
-  const [currentModule, setCurrentModule] = useState(null);
-  const [currentModuleId, setCurrentModuleId] = useState(null);
+  // Current items for editing and adding
+  const [currentModule, setCurrentModule] = useState(null);
+  const [currentModuleId, setCurrentModuleId] = useState(null);
 
-  const handleAddClick = type => {
-    switch (type) {
-      case 'module':
-        setCurrentModule(null);
-        setIsModuleModalOpen(true);
-        break;
-      case 'link':
-        // This is handled through the module card now
-        break;
-      case 'upload':
-        // This is handled through the module card now
-        break;
-      default:
-        break;
-    }
-  };
+  // Outline state
+  const moduleRefs = useRef({});
+  const [activeModuleId, setActiveModuleId] = useState(null);
 
-  const handleCloseModuleModal = () => {
-    setIsModuleModalOpen(false);
-    setCurrentModule(null);
-  };
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveModuleId(entry.target.id);
+          }
+        });
+      },
+      { root: null, rootMargin: '0px 0px -50% 0px', threshold: 0 }
+    );
 
-  const handleCloseLinkModal = () => {
-    setIsLinkModalOpen(false);
-    setCurrentModuleId(null);
-  };
+    Object.values(moduleRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
 
-  const handleCloseUploadModal = () => {
-    setIsUploadModalOpen(false);
-    setCurrentModuleId(null);
-  };
+    return () => {
+      Object.values(moduleRefs.current).forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
+    };
+  }, [modules]);
 
-  const handleSaveModule = module => {
-    if (currentModule) {
-      // Edit existing module
-      setModules(modules.map(m => (m.id === module.id ? module : m)));
-    } else {
-      // Add new module
-      setModules([...modules, module]);
-    }
-    setIsModuleModalOpen(false);
-    setCurrentModule(null);
-  };
+  const handleAddClick = (type) => {
+    switch (type) {
+      case 'module':
+        setCurrentModule(null);
+        setIsModuleModalOpen(true);
+        break;
+      case 'link':
+        setCurrentModuleId(null);
+        setIsLinkModalOpen(true);
+        break;
+      case 'upload':
+        setCurrentModuleId(null);
+        setIsUploadModalOpen(true);
+        break;
+      default:
+        break;
+    }
+  };
 
-  const handleEditModule = module => {
-    setCurrentModule(module);
-    setIsModuleModalOpen(true);
-  };
+  const handleCloseModuleModal = () => {
+    setIsModuleModalOpen(false);
+    setCurrentModule(null);
+  };
 
-  const handleDeleteModule = moduleId => {
-    setModules(modules.filter(module => module.id !== moduleId));
-    // Also remove any items associated with this module
-    setItems(items.filter(item => item.moduleId !== moduleId));
-  };
+  const handleCloseLinkModal = () => {
+    setIsLinkModalOpen(false);
+    setCurrentModuleId(null);
+  };
 
-  const handleAddItem = (moduleId, type) => {
-    setCurrentModuleId(moduleId);
-    if (type === 'link') {
-      setIsLinkModalOpen(true);
-    } else if (type === 'file') {
-      setIsUploadModalOpen(true);
-    }
-  };
+  const handleCloseUploadModal = () => {
+    setIsUploadModalOpen(false);
+    setCurrentModuleId(null);
+  };
 
-  const handleSaveLink = linkItem => {
-    setItems([...items, linkItem]);
-    setIsLinkModalOpen(false);
-    setCurrentModuleId(null);
-  };
+  const handleSaveModule = (module) => {
+    if (currentModule) {
+      setModules(modules.map((m) => (m.id === module.id ? module : m)));
+    } else {
+      setModules([...modules, module]);
+    }
+    setIsModuleModalOpen(false);
+    setCurrentModule(null);
+  };
 
-  const handleSaveUpload = fileItem => {
-    setItems([...items, fileItem]);
-    setIsUploadModalOpen(false);
-    setCurrentModuleId(null);
-  };
+  const handleEditModule = (module) => {
+    setCurrentModule(module);
+    setIsModuleModalOpen(true);
+  };
 
-  const handleDeleteItem = itemId => {
-    setItems(items.filter(item => item.id !== itemId));
-  };
+  const handleDeleteModule = (moduleId) => {
+    setModules(modules.filter((module) => module.id !== moduleId));
+    setItems(items.filter((item) => item.moduleId !== moduleId));
+  };
 
-  return (
-    <div className="course-builder">
-      <Header onAddClick={handleAddClick} />
+  const handleAddItem = (moduleId, type) => {
+    setCurrentModuleId(moduleId);
+    if (type === 'link') setIsLinkModalOpen(true);
+    else if (type === 'file') setIsUploadModalOpen(true);
+  };
 
-      <div className="builder-content">
-        {modules.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="module-list">
-            {modules.map(module => (
-              <ModuleCard
-                key={module.id}
-                module={module}
-                items={items}
-                onEdit={handleEditModule}
-                onDelete={handleDeleteModule}
-                onAddItem={handleAddItem}
-                onDeleteItem={handleDeleteItem}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+  const handleSaveLink = (linkItem) => {
+    setItems([...items, linkItem]);
+    setIsLinkModalOpen(false);
+    setCurrentModuleId(null);
+  };
 
-      {/* Module Modal */}
-      <ModuleModal
-        isOpen={isModuleModalOpen}
-        onClose={handleCloseModuleModal}
-        onSave={handleSaveModule}
-        module={currentModule}
-      />
+  const handleSaveUpload = (fileItem) => {
+    setItems([...items, fileItem]);
+    setIsUploadModalOpen(false);
+    setCurrentModuleId(null);
+  };
 
-      {/* Link Modal */}
-      <LinkModal
-        isOpen={isLinkModalOpen}
-        onClose={handleCloseLinkModal}
-        onSave={handleSaveLink}
-        moduleId={currentModuleId}
-      />
+  const handleDeleteItem = (itemId) => {
+    setItems(items.filter((item) => item.id !== itemId));
+  };
 
-      {/* Upload Modal */}
-      <UploadModal
-        isOpen={isUploadModalOpen}
-        onClose={handleCloseUploadModal}
-        onSave={handleSaveUpload}
-        moduleId={currentModuleId}
-      />
-    </div>
-  );
+  const filteredModules = useMemo(() => {
+    if (!searchQuery) return modules;
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    return modules.filter((module) => {
+      if (module.name.toLowerCase().includes(lowerCaseQuery)) return true;
+      return items.some(
+        (item) =>
+          item.moduleId === module.id && item.title.toLowerCase().includes(lowerCaseQuery)
+      );
+    });
+  }, [modules, items, searchQuery]);
+
+  return (
+    <div className="app">
+      <Header onAddClick={handleAddClick} onSearchChange={setSearchQuery} />
+
+      <div style={{ display: 'flex' }}>
+        {/* Main Content */}
+        <div className="module-list" style={{ flex: 1 }}>
+          {items.some(item => !item.moduleId) && (
+            <div className="module-items-list">
+              {items.filter(item => !item.moduleId).map(item => (
+                <ModuleItem key={item.id} item={item} onDelete={handleDeleteItem} />
+              ))}
+            </div>
+          )}
+          {filteredModules.length === 0 && modules.length > 0 ? (
+            <div className="empty-state">No matching modules or items found.</div>
+          ) : filteredModules.length === 0 ? (
+            <EmptyState />
+          ) : (
+            filteredModules.map((module) => (
+              <div
+                key={module.id}
+                id={module.id}
+                ref={(el) => (moduleRefs.current[module.id] = el)}
+              >
+                <ModuleCard
+                  module={module}
+                  items={items}
+                  onEdit={handleEditModule}
+                  onDelete={handleDeleteModule}
+                  onAddItem={handleAddItem}
+                  onDeleteItem={handleDeleteItem}
+                  active={activeModuleId === module.id}
+                  highlight={
+                    searchQuery &&
+                    module.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  }
+                />
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Course Outline Sidebar */}
+        {modules.length > 0 && (
+          <div className="module-list" style={{ width: '280px', marginLeft: '24px' }}>
+            <h3 className="module-title">Course Outline</h3>
+            <ul>
+              {modules.map((module) => (
+                <li
+                  key={module.id}
+                  className={`module-subtitle ${
+                    activeModuleId === module.id ? 'bg-blue-100 font-medium' : ''
+                  }`}
+                  onClick={() =>
+                    moduleRefs.current[module.id]?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    })
+                  }
+                >
+                  {module.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Modals */}
+      <ModuleModal
+        isOpen={isModuleModalOpen}
+        onClose={handleCloseModuleModal}
+        onSave={handleSaveModule}
+        module={currentModule}
+      />
+      <LinkModal
+        isOpen={isLinkModalOpen}
+        onClose={handleCloseLinkModal}
+        onSave={handleSaveLink}
+        moduleId={currentModuleId}
+      />
+      <UploadModal
+        isOpen={isUploadModalOpen}
+        onClose={handleCloseUploadModal}
+        onSave={handleSaveUpload}
+        moduleId={currentModuleId}
+      />
+    </div>
+  );
 };
 
 export default CourseBuilder;

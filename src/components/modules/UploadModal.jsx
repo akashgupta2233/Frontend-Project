@@ -12,9 +12,8 @@ const UploadModal = ({ isOpen, onClose, onSave, moduleId }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (!fileTitle.trim() || !selectedFile) return;
 
-    // In a real app, you would upload the file to a server
-    // Here we just create a mock file entry
     onSave({
       id: Date.now().toString(),
       moduleId,
@@ -35,41 +34,35 @@ const UploadModal = ({ isOpen, onClose, onSave, moduleId }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h2>Upload file</h2>
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <div className="form-group">
-              <label htmlFor="file-title">File title</label>
-              <input
-                id="file-title"
-                type="text"
-                value={fileTitle}
-                onChange={e => setFileTitle(e.target.value)}
-                placeholder="File title"
-                className="form-input"
-                autoFocus
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="file-upload">Select file</label>
-              <input
-                id="file-upload"
-                type="file"
-                onChange={handleFileChange}
-                className="file-input"
-              />
-              {selectedFile && (
-                <div className="selected-file">
-                  <span className="file-name">{selectedFile.name}</span>
-                  <span className="file-size">
-                    ({Math.round(selectedFile.size / 1024)} KB)
-                  </span>
-                </div>
-              )}
-            </div>
+        <form onSubmit={handleSubmit} className="modal-body">
+          <div className="form-group">
+            <label htmlFor="file-title">File title</label>
+            <input
+              id="file-title"
+              type="text"
+              value={fileTitle}
+              onChange={e => setFileTitle(e.target.value)}
+              placeholder="File title"
+              className="form-input"
+              autoFocus
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="file-upload">Select file</label>
+            <input
+              id="file-upload"
+              type="file"
+              onChange={handleFileChange}
+              className="file-input"
+            />
+            {selectedFile && (
+              <div className="selected-file">
+                <span className="file-name">{selectedFile.name}</span>
+                <span className="file-size">({Math.round(selectedFile.size / 1024)} KB)</span>
+              </div>
+            )}
           </div>
           <div className="modal-footer">
             <button type="button" className="btn-cancel" onClick={onClose}>

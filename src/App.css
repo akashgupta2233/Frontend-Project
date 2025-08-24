@@ -176,8 +176,8 @@ body {
 
 .module-card-container {
   border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 12px;
+  overflow: visible; /* was hidden or auto before? */
+  position: relative;
 }
 
 .module-card {
@@ -203,7 +203,6 @@ body {
   border-top: none;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  padding: 20px;
 }
 
 .empty-module-message {
@@ -472,7 +471,7 @@ body {
 .module-items-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0px;
 }
 
 .module-item {
@@ -567,7 +566,6 @@ body {
   flex-direction: column;
   align-items: center;
   position: relative;
-  margin-top: 16px;
 }
 
 .add-item-button {
@@ -597,7 +595,7 @@ body {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 180px;
-  z-index: 10;
+  z-index: 1000;
   margin-top: 8px;
   overflow: hidden;
   border: 1px solid #eaeaea;
@@ -692,3 +690,25 @@ body {
     max-width: 200px;
   }
 }
+
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.link-icon {
+  background-color: #e0f2fe; /* light blue */
+}
+
+.pdf-icon {
+  background-color: #fee2e2; /* light red */
+}
+
+.icon-wrapper img {
+  width: 20px;
+  height: 20px;
+}
+
